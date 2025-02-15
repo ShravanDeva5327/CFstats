@@ -22,8 +22,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var handleEditText: EditText
     private lateinit var contributionGraphView: ContributionGraphView
-    private lateinit var loginButton: Button
+    private lateinit var showContributionsButton: Button
     private val handler = Handler(Looper.getMainLooper())
+
+    // Set polling interval (e.g., 15 min = 15 * 60 * 1000)
+    private val pollingInterval = 900000L
+
+    // Runnable that periodically calls the API
+    private val pollingRunnable = object : Runnable {
+        override fun run() {
+            // Retrieve stored handle and call API if available
+            val handle = getStoredHandle()
+            if (!handle.isNullOrEmpty()) {
+                fetchUserSubmissions(handle)
+            }
+            handler.postDelayed(this, pollingInterval)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,26 +46,47 @@ class MainActivity : AppCompatActivity() {
 
         handleEditText = findViewById(R.id.handleEditText)
         contributionGraphView = findViewById(R.id.contributionGraphView)
-        loginButton = findViewById(R.id.loginButton)
+        showContributionsButton = findViewById(R.id.loginButton)  // Renaming button for clarity
 
         // Retrieve saved handle from SharedPreferences, if available.
-        val sharedPrefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val savedHandle = sharedPrefs.getString("handle", null)
-        if (savedHandle != null) {
+        val savedHandle = getStoredHandle()
+        if (!savedHandle.isNullOrEmpty()) {
             handleEditText.setText(savedHandle)
             fetchUserSubmissions(savedHandle)
+            // Start polling for periodic updates
+            handler.postDelayed(pollingRunnable, pollingInterval)
         }
 
-        // Set up click listener on the login button.
-        loginButton.setOnClickListener {
+        // Set up click listener on the button.
+        showContributionsButton.setOnClickListener {
             val handle = handleEditText.text.toString().trim()
             if (handle.isNotEmpty()) {
                 // Save the handle persistently
-                sharedPrefs.edit().putString("handle", handle).apply()
-                // Fetch user submissions using the entered handle
+                saveHandle(handle)
+                // Immediately fetch user submissions for the entered handle
                 fetchUserSubmissions(handle)
+                // Start polling for periodic updates
+                handler.removeCallbacks(pollingRunnable)
+                handler.postDelayed(pollingRunnable, pollingInterval)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Remove callbacks to stop polling when the activity is destroyed
+        handler.removeCallbacks(pollingRunnable)
+    }
+
+    // Helper functions for SharedPreferences
+    private fun getStoredHandle(): String? {
+        val sharedPrefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        return sharedPrefs.getString("handle", null)
+    }
+
+    private fun saveHandle(handle: String) {
+        val sharedPrefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString("handle", handle).apply()
     }
 
     private fun fetchUserSubmissions(handle: String) {

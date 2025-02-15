@@ -62,12 +62,14 @@ class MainActivity : AppCompatActivity() {
             val handle = handleEditText.text.toString().trim()
             if (handle.isNotEmpty()) {
                 // Save the handle persistently
-                saveHandle(handle)
-                // Immediately fetch user submissions for the entered handle
+                val sharedPrefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                sharedPrefs.edit().putString("handle", handle).apply()
+
+                // Fetch and show data in the app as before
                 fetchUserSubmissions(handle)
-                // Start polling for periodic updates
-                handler.removeCallbacks(pollingRunnable)
-                handler.postDelayed(pollingRunnable, pollingInterval)
+
+                // Trigger an immediate widget update and start periodic updates
+                UpdateWidgetWorker.enqueueWork(this)
             }
         }
     }

@@ -18,7 +18,7 @@
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="Fetch Stats"
         android:layout_marginTop="8dp"/>
 
     <com.example.cfstats.ContributionGraphView

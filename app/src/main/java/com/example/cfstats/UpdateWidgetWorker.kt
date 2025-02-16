@@ -77,8 +77,8 @@ class UpdateWidgetWorker(context: Context, params: WorkerParameters) : Worker(co
         }
 
         // Define desired bitmap dimensions (adjust these as needed)
-        val bitmapWidth = 700
-        val bitmapHeight = 200
+        val bitmapWidth = 693
+        val bitmapHeight = 198
         val bitmap = createContributionBitmap(context, contributions, bitmapWidth, bitmapHeight)
 //        val density = context.resources.displayMetrics.density
 //        val widgetWidthPx = (280 * density).toInt() // Convert 280dp to pixels

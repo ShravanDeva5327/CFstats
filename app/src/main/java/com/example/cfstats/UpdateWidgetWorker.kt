@@ -77,9 +77,15 @@ class UpdateWidgetWorker(context: Context, params: WorkerParameters) : Worker(co
         }
 
         // Define desired bitmap dimensions (adjust these as needed)
-        val bitmapWidth = 650
-        val bitmapHeight = 150
+        val bitmapWidth = 700
+        val bitmapHeight = 200
         val bitmap = createContributionBitmap(context, contributions, bitmapWidth, bitmapHeight)
+//        val density = context.resources.displayMetrics.density
+//        val widgetWidthPx = (280 * density).toInt() // Convert 280dp to pixels
+//        val widgetHeightPx = (70 * density).toInt() // Convert 70dp to pixels
+//
+//        val bitmap = createContributionBitmap(context, contributions, widgetWidthPx, widgetHeightPx)
+
 
         // Update the widget using RemoteViews
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_contribution)

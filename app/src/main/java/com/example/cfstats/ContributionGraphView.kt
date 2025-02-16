@@ -18,24 +18,30 @@ class ContributionGraphView @JvmOverloads constructor(
     private var contributions: Array<Array<Int>>? = null
 
     // Paint for cells with 1 submission
-    private val greenPaintLight = Paint().apply {
-        color = Color.parseColor("#90EE90") // Light green (LightGreen)
+    private val onepaint = Paint().apply {
+        color = Color.parseColor("#0E4429") // Light green (LightGreen)
         style = Paint.Style.FILL
     }
-    // Paint for cells with 2 submissions
-    private val greenPaintMedium = Paint().apply {
-        color = Color.parseColor("#00FF00") // Standard green (Lime)
+    // Paint for cells with 2, 3 submissions
+    private val twothreepaint = Paint().apply {
+        color = Color.parseColor("#006D32") // Standard green (Lime)
         style = Paint.Style.FILL
     }
-    // Paint for cells with 3+ submissions
-    private val greenPaintDark = Paint().apply {
-        color = Color.parseColor("#008000") // Dark green (Green)
+    // Paint for cells with 4, 5 submissions
+    private val fourfivepaint = Paint().apply {
+        color = Color.parseColor("#26A641") // Dark green (Green)
+        style = Paint.Style.FILL
+    }
+    // Paint for cells with 5+ submissions
+    private val fivepluspaint = Paint().apply {
+        color = Color.parseColor("#39D353") // Darker green (DarkGreen)
         style = Paint.Style.FILL
     }
 
     // Paint for white cells (no contribution)
     private val grayPaint = Paint().apply {
-        color = Color.DKGRAY
+        color = Color.parseColor("##2B2A2A")
+//        color = Color.parseColor("#161B22")
         style = Paint.Style.FILL
     }
 
@@ -76,13 +82,16 @@ class ContributionGraphView @JvmOverloads constructor(
 
                 val contribution = contributions?.getOrNull(row)?.getOrNull(col) ?: 0
                 val paint = when {
-                    contribution >=3 -> greenPaintDark
-                    contribution == 2 -> greenPaintMedium
-                    contribution == 1 -> greenPaintLight
+                    contribution >= 6 -> fivepluspaint
+                    contribution == 5 -> fivepluspaint
+                    contribution == 4 -> fourfivepaint
+                    contribution == 3 -> fourfivepaint
+                    contribution == 2 -> twothreepaint
+                    contribution == 1 -> onepaint
                     else -> grayPaint
                 }
 
-                val cornerRadius = 10f // Adjust as needed
+                val cornerRadius = 5f // Adjust as needed
                 // Draw rounded square
                 canvas.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, paint)
 

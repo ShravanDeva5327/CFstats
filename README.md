@@ -44,11 +44,11 @@ You can download the signed APK from this repository.
 
 *Below are placeholder images—replace these with actual screenshots once you have them ready.*
 
-<img src="/img1.jpeg" alt="App Screenshot" width="400"/>
-*Description: Main app interface showing the contribution graph.*
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+    <img src="/img1.jpeg" alt="App Screenshot" width="400"/>
+    <img src="/img2.jpeg" alt="Widget Screenshot" width="300"/>
+</div>
 
-<img src="/img2.jpeg" alt="Widget Screenshot" width="300"/>
-*Description: Home screen widget displaying the updated graph.*
 
 ## Future Improvements
 

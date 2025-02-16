@@ -5,7 +5,7 @@ CF Stats is an Android application that fetches your Codeforces submission data 
 ## Features
 
 - **Codeforces Integration:** Fetches your submission data directly from the Codeforces API.
-- **Contribution Graph:** Visualizes your submission history with a color-coded grid.
+- **Submission Graph:** Visualizes your submission history with a color-coded grid.
 - **Home Screen Widget:** Offers a widget that updates every 15 minutes, showing your latest contribution graph.
 - **Persistent Handle:** Saves your Codeforces handle for quick and easy access every time you open the app.
 
@@ -44,10 +44,10 @@ You can download the signed APK from this repository.
 
 *Below are placeholder images—replace these with actual screenshots once you have them ready.*
 
-![App Screenshot](/img1.jpeg)
+![App Screenshot](/img1.jpeg =400x300)
 *Description: Main app interface showing the contribution graph.*
 
-![Widget Screenshot](/img2.jpeg)
+![Widget Screenshot](/img2.jpeg =300x300)
 *Description: Home screen widget displaying the updated graph.*
 
 ## Future Improvements

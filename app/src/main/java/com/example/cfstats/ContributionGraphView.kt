@@ -40,8 +40,7 @@ class ContributionGraphView @JvmOverloads constructor(
 
     // Paint for white cells (no contribution)
     private val grayPaint = Paint().apply {
-        color = Color.parseColor("##2B2A2A")
-//        color = Color.parseColor("#161B22")
+        color = Color.parseColor("#242222")
         style = Paint.Style.FILL
     }
 

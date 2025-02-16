@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.work.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -30,8 +31,11 @@ class UpdateWidgetWorker(context: Context, params: WorkerParameters) : Worker(co
             return Result.success()
         }
 
-        // Fetch the contribution data from Codeforces
-        val contributions = Array(7) { Array(25) { 0 } }
+        // Create an empty contributions array.
+        var contributions = Array(7) { Array(25) { 0 } }
+        var fetchSucceeded = false
+
+        // Attempt to fetch contribution data from Codeforces.
         try {
             val apiUrl = "https://codeforces.com/api/user.status?handle=$handle"
             val url = URL(apiUrl)
@@ -44,6 +48,7 @@ class UpdateWidgetWorker(context: Context, params: WorkerParameters) : Worker(co
                 val response = BufferedReader(InputStreamReader(connection.inputStream)).use { it.readText() }
                 val jsonResponse = JSONObject(response)
                 if (jsonResponse.getString("status") == "OK") {
+                    fetchSucceeded = true
                     val resultArray = jsonResponse.getJSONArray("result")
                     val zoneId = ZoneId.of("GMT+05:30")
                     val today = LocalDate.now(zoneId)
@@ -76,30 +81,79 @@ class UpdateWidgetWorker(context: Context, params: WorkerParameters) : Worker(co
             e.printStackTrace()
         }
 
+        // If fetching failed, attempt to load cached contributions.
+        if (!fetchSucceeded) {
+            val cachedContrib = loadCachedContributions(context)
+            if (cachedContrib != null) {
+                contributions = cachedContrib
+                Log.i("UpdateWidgetWorker", "Using cached contributions")
+            } else {
+                Log.i("UpdateWidgetWorker", "No cached contributions available")
+            }
+        } else {
+            // If fetch succeeded, cache the new contributions.
+            cacheContributions(context, contributions)
+        }
+
         // Define desired bitmap dimensions (adjust these as needed)
         val bitmapWidth = 693
         val bitmapHeight = 198
         val bitmap = createContributionBitmap(context, contributions, bitmapWidth, bitmapHeight)
-//        val density = context.resources.displayMetrics.density
-//        val widgetWidthPx = (280 * density).toInt() // Convert 280dp to pixels
-//        val widgetHeightPx = (70 * density).toInt() // Convert 70dp to pixels
-//
-//        val bitmap = createContributionBitmap(context, contributions, widgetWidthPx, widgetHeightPx)
-
 
         // Update the widget using RemoteViews
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_contribution)
         remoteViews.setImageViewBitmap(R.id.widgetImage, bitmap)
 
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        val widgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, ContributionWidgetProvider::class.java))
+        val widgetIds = appWidgetManager.getAppWidgetIds(
+            ComponentName(context, ContributionWidgetProvider::class.java)
+        )
         appWidgetManager.updateAppWidget(widgetIds, remoteViews)
 
         return Result.success()
     }
 
+    /**
+     * Caches the contributions array into SharedPreferences as a JSON string.
+     */
+    private fun cacheContributions(context: Context, contributions: Array<Array<Int>>) {
+        val jsonArray = JSONArray()
+        for (row in contributions) {
+            val rowArray = JSONArray()
+            for (value in row) {
+                rowArray.put(value)
+            }
+            jsonArray.put(rowArray)
+        }
+        val sharedPrefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString("cached_contributions", jsonArray.toString()).apply()
+    }
+
+    /**
+     * Loads the cached contributions array from SharedPreferences.
+     * Returns null if no cached data is available or if an error occurs.
+     */
+    private fun loadCachedContributions(context: Context): Array<Array<Int>>? {
+        val sharedPrefs = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val jsonStr = sharedPrefs.getString("cached_contributions", null) ?: return null
+        return try {
+            val jsonArray = JSONArray(jsonStr)
+            val contributions = Array(7) { Array(25) { 0 } }
+            for (i in 0 until jsonArray.length()) {
+                val rowArray = jsonArray.getJSONArray(i)
+                for (j in 0 until rowArray.length()) {
+                    contributions[i][j] = rowArray.getInt(j)
+                }
+            }
+            contributions
+        } catch (e: Exception) {
+            Log.e("UpdateWidgetWorker", "Error loading cached contributions: ${e.message}")
+            null
+        }
+    }
+
     companion object {
-        // Enqueue a unique periodic work request to update the widget every 15 minutes
+        // Enqueue a unique periodic work request to update the widget every 15 minutes.
         fun enqueueWork(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<UpdateWidgetWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(

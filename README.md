@@ -42,8 +42,6 @@ You can download the signed APK from this repository.
 
 ## Screenshots
 
-*Below are placeholder images—replace these with actual screenshots once you have them ready.*
-
 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
     <img src="/img1.jpeg" alt="App Screenshot" width="400"/>
     <img src="/img2.jpeg" alt="Widget Screenshot" width="300"/>
